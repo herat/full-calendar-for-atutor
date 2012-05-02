@@ -5300,7 +5300,7 @@
 
         function mouse(ev) {
             _fixUIEvent(ev); // see below
-            alert(ev.pageX +" "+ev.pageY);
+            //alert(ev.pageX +" "+ev.pageY);
             var newCell = coordinateGrid.cell(ev.pageX, ev.pageY);
             if (!newCell != !cell || newCell && (newCell.row != cell.row || newCell.col != cell.col)) {
                 if (newCell) {
