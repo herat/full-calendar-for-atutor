@@ -3563,11 +3563,11 @@
                 //hoverListener.start(function (cell, origCell) {
                     coordinateGrid.build();
                     var $tpos1 = $(ev.target);
-                    var tpos = $tpos1.parents("div.fc-content").position();
-                    var tpos2 = $tpos1.position();
+                    var tpos = $tpos1.parents("body").position();
+                    var tpos2 = $tpos1.offset();
                     alert((tpos2.left + tpos.left) + "  " + (tpos.top + tpos2.top+70));
                     var newCell;
-                    newCell = coordinateGrid.cell((tpos2.left + tpos.left), (tpos.top + tpos2.top+70));
+                    newCell = coordinateGrid.cell((tpos2.left), (tpos2.top));
                     firstCell = newCell;
                     //clearSelection();
                     //if (cell && cell.col == origCell.col && !cellIsAllDay(cell)) {
@@ -5107,9 +5107,9 @@
                 var $tpos1 = $(ev.target);
                 var tpos = $tpos1.parents("div.fc-content").position();
                 var tpos2 = $tpos1.position();
-                alert((tpos2.left + tpos.left) + "  " + (tpos.top + tpos2.top + 20));
+                alert((tpos2.left + tpos.left) + "  " + (tpos.top + tpos2.top + 30));
                 var newCell;
-                newCell = coordinateGrid.cell((tpos2.left + tpos.left), (tpos.top + tpos2.top + 20));
+                newCell = coordinateGrid.cell((tpos2.left + tpos.left), (tpos.top + tpos2.top + 30));
                 firstCell = newCell;
                 //change(newCell, firstCell, newCell.row - firstCell.row, newCell.col - firstCell.col);
                 dates = [cellDate(firstCell), cellDate(newCell)].sort(cmp);
@@ -5300,7 +5300,7 @@
 
         function mouse(ev) {
             _fixUIEvent(ev); // see below
-            //alert(ev.pageX +" "+ev.pageY);
+            alert(ev.pageX +" "+ev.pageY);
             var newCell = coordinateGrid.cell(ev.pageX, ev.pageY);
             if (!newCell != !cell || newCell && (newCell.row != cell.row || newCell.col != cell.col)) {
                 if (newCell) {
