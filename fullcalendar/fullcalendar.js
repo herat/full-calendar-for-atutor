@@ -18,6 +18,8 @@
 
 (function ($, undefined) {
 
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
 
     var defaults = {
 
@@ -2234,7 +2236,7 @@
 				"<tr class='fc-week" + i + "'>";
                 for (j = 0; j < colCnt; j++) {
                     s +=
-					"<td class='fc- " + contentClass + " fc-day" + (i * colCnt + j) + "'><a href='#' title='date'>" + // need fc- for setDayID
+					"<td class='fc- " + contentClass + " fc-day" + (i * colCnt + j) + "'><a href='#'>" + // need fc- for setDayID
 					"<div>" +
 					(showNumbers ?
 						"<div class='fc-day-number'/>" :
@@ -2306,7 +2308,9 @@
                 } else {
                     cell.removeClass(tm + '-state-highlight fc-today');
                 }
-                cell.find('div.fc-day-number').text(date.getDate());
+                //cell.find('div.fc-day-number').text(date.getDate());
+                //cell.find('div.fc-day-number').attr('abbr',date.getDate()+" "+monthNames[date.getMonth()]+" "+date.getFullYear());
+                cell.find('div.fc-day-number').text(date.getDate() + " " + monthNames[date.getMonth()] + " " + date.getFullYear());
                 if (dowDirty) {
                     setDayID(cell, date);
                 }
@@ -2376,7 +2380,6 @@
         }
 
         function dayBind1(days) {
-            //days.keydown( function(ev) { if(ev.which == 13) { alert("ggg"); } } );
             days.keydown(dayKeyTest);
         }
 
@@ -3047,11 +3050,18 @@
                 s =
 				"<table style='width:100%' class='fc-agenda-allday' cellspacing='0'>" +
 				"<tr>" +
-				"<th class='" + headerClass + " fc-agenda-axis'>" + opt('allDayText') + "</th>" +
-				"<td><a href='#'>" +
-				"<div class='fc-day-content'><div style='position:relative'/></div>" +
-				"</td></a>" +
-				"<th class='" + headerClass + " fc-agenda-gutter'>&nbsp;</th>" +
+				"<th class='" + headerClass + " fc-agenda-axis'>" + opt('allDayText') + "</th>";
+                /*"<td><a href='#'>" +
+                "<div class='fc-day-content'><div style='position:relative'/></div>" +
+                "</td></a>" +*/
+                for (zz = 0; zz < colCnt; zz++) {
+                    date = colDate(zz);
+                    s +=
+				    "<td><a href='#'><div class='hidden'>" + (date.getDate() + " " + monthNames[date.getMonth()] + " " + date.getFullYear()) + "</div>" + // fc- needed for setDayID
+				    "<div class='fc-day-content'><div style='position:relative'>&nbsp;</div></div>" +
+				    "</a></td>";
+                }
+                s += "<th class='" + headerClass + " fc-agenda-gutter'>&nbsp;</th>" +
 				"</tr>" +
 				"</table>";
                 allDayTable = $(s).appendTo(slotLayer);
@@ -3100,11 +3110,19 @@
 				"<tr class='fc-slot" + i + ' ' + (!minutes ? '' : 'fc-minor') + "'>" +
 				"<th class='fc-agenda-axis " + headerClass + "'>" +
 				((!slotNormal || !minutes) ? formatDate(d, opt('axisFormat')) : '&nbsp;') +
-				"</th>" +
-				"<td class='" + contentClass + "'>" +
-				"<a href='#'><div style='position:relative'>&nbsp;</div></a>" +
-				"</td>" +
-				"</tr>";
+				"</th>";
+                /*"<td class='" + contentClass + "'>" +
+                "<a href='#'><div style='position:relative'>&nbsp;</div></a>" +
+                "</td>"*/
+                for (zz = 0; zz < colCnt; zz++) {
+                    date = colDate(zz);
+                    s +=
+				"<td  class='" + contentClass + "'><a href='#'><div class='hidden'>" + formatDate(d, opt('axisFormat')) + " of </div><div class='hidden1'>" + (date.getDate() + " " + monthNames[date.getMonth()] + " " + date.getFullYear()) + "</div>" + // fc- needed for setDayID
+				"<div style='position:relative'>&nbsp;</div>" +
+				"</a></td>";
+                }
+
+                s += "</tr>";
                 addMinutes(d, opt('slotMinutes'));
                 slotCnt++;
             }
@@ -3123,16 +3141,21 @@
 
 
         function updateCells() {
-            var i;
+            var i, zzz;
             var headCell;
             var bodyCell;
+            var allDayCell;
             var date;
             var today = clearTime(new Date());
             for (i = 0; i < colCnt; i++) {
                 date = colDate(i);
                 headCell = dayHeadCells.eq(i);
+                //headCell.attr('abbr',date.getDate()+" "+monthNames[date.getMonth()]+" "+date.getFullYear());
                 headCell.html(formatDate(date, colFormat));
                 bodyCell = dayBodyCells.eq(i);
+                allDayCell = allDayRow.find('.hidden').eq(i);
+                allDayCell.html(date.getDate() + " " + monthNames[date.getMonth()] + " " + date.getFullYear());
+
                 if (+date == +today) {
                     bodyCell.addClass(tm + '-state-highlight fc-today');
                 } else {
@@ -3140,6 +3163,13 @@
                 }
                 setDayID(headCell.add(bodyCell), date);
             }
+            $('div.hidden1').each(
+                function (index) {
+                    zzz = index % colCnt;
+                    date = colDate(zzz);
+                    $(this).html(date.getDate() + " " + monthNames[date.getMonth()] + " " + date.getFullYear());
+                }
+            );
         }
 
 
@@ -3245,7 +3275,6 @@
         }
 
         function dayBind1(cells) {
-            //days.keydown( function(ev) { if(ev.which == 13) { alert("ggg"); } } );
             cells.keydown(dayKeyTest);
         }
 
@@ -3561,37 +3590,37 @@
                 unselect(ev);
                 var dates;
                 //hoverListener.start(function (cell, origCell) {
-                    coordinateGrid.build();
-                    var $tpos1 = $(ev.target);
-                    var tpos = $tpos1.parents("body").position();
-                    var tpos2 = $tpos1.offset();
-                    alert((tpos2.left + tpos.left) + "  " + (tpos.top + tpos2.top+70));
-                    var newCell;
-                    newCell = coordinateGrid.cell((tpos2.left), (tpos2.top));
-                    firstCell = newCell;
-                    //clearSelection();
-                    //if (cell && cell.col == origCell.col && !cellIsAllDay(cell)) {
-                        var d1 = cellDate(firstCell);
-                        var d2 = cellDate(newCell);
-                        dates = [
+                coordinateGrid.build();
+                var $tpos1 = $(ev.target);
+                var tpos = $tpos1.parents("body").position();
+                var tpos2 = $tpos1.offset();
+                //alert((tpos2.left + tpos.left) + "  " + (tpos.top + tpos2.top + 70));
+                var newCell;
+                newCell = coordinateGrid.cell((tpos2.left), (tpos2.top));
+                firstCell = newCell;
+                //clearSelection();
+                //if (cell && cell.col == origCell.col && !cellIsAllDay(cell)) {
+                var d1 = cellDate(firstCell);
+                var d2 = cellDate(newCell);
+                dates = [
 						d1,
 						addMinutes(cloneDate(d1), opt('slotMinutes')),
 						d2,
 						addMinutes(cloneDate(d2), opt('slotMinutes'))
 					].sort(cmp);
-                        renderSlotSelection(dates[0], dates[3]);
-                    //} else {
-                    //    dates = null;
-                    //}
+                renderSlotSelection(dates[0], dates[3]);
+                //} else {
+                //    dates = null;
+                //}
                 //}, ev);
                 //$(document).one('mouseup', function (ev) {
-                    hoverListener.stop();
-                    if (dates) {
-                        if (+dates[0] == +dates[1]) {
-                            reportDayClick(dates[0], false, ev);
-                        }
-                        reportSelection(dates[0], dates[3], false, ev);
+                hoverListener.stop();
+                if (dates) {
+                    if (+dates[0] == +dates[1]) {
+                        reportDayClick(dates[0], false, ev);
                     }
+                    reportSelection(dates[0], dates[3], false, ev);
+                }
                 //});
             }
         }
@@ -5091,7 +5120,7 @@
             var coordinateGrid = t.getCoordinateGrid();
             var reportDayClick = t.reportDayClick; // this is hacky and sort of weird
             if (ev.which == 13 && opt('selectable')) { // which==1 means left mouse button
-                alert("hi");
+                //alert("hi");
                 unselect(ev);
                 var _mousedownElement = this;
                 var dates;
@@ -5107,7 +5136,7 @@
                 var $tpos1 = $(ev.target);
                 var tpos = $tpos1.parents("div.fc-content").position();
                 var tpos2 = $tpos1.position();
-                alert((tpos2.left + tpos.left) + "  " + (tpos.top + tpos2.top + 30));
+                //alert((tpos2.left + tpos.left) + "  " + (tpos.top + tpos2.top + 30));
                 var newCell;
                 newCell = coordinateGrid.cell((tpos2.left + tpos.left), (tpos.top + tpos2.top + 30));
                 firstCell = newCell;
@@ -5274,7 +5303,7 @@
             var $tpos1 = $(ev.target);
             var tpos = $tpos1.parents("div.fc-content").position();
             var tpos2 = $tpos1.position();
-            alert((tpos2.left + tpos.left) + "  " + (tpos.top + tpos2.top + 20));
+            //alert((tpos2.left + tpos.left) + "  " + (tpos.top + tpos2.top + 20));
             var newCell = coordinateGrid.cell((tpos2.left + tpos.left), (tpos.top + tpos2.top + 20));
             /*if (!newCell != !cell || newCell && (newCell.row != cell.row || newCell.col != cell.col)) {
             if (newCell) {
